@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Personal Growth Animation</title>
+    <title>Slow Growth Transparent</title>
     <style>
         body {
             margin: 0;
             padding: 0;
-            background-color: #191919; /* Notion Dark Mode Hintergrund */
+            /* Hintergrund ist jetzt transparent */
+            background-color: transparent; 
             display: flex;
             justify-content: center;
             align-items: center;
@@ -25,10 +26,11 @@
             position: absolute;
             top: 20px;
             left: 20px;
-            color: #E0D6C2; /* Ein sanftes Beige/Weiß */
+            /* Die Textfarbe passt sich jetzt der Linie an */
+            color: #C4A484; 
             font-size: 14px;
             letter-spacing: 1px;
-            opacity: 0.8;
+            opacity: 0.9;
             text-transform: uppercase;
             font-weight: 600;
         }
@@ -45,14 +47,22 @@
 
         let width, height;
         let progress = 0;
-        let speed = 0.0008; // Geschwindigkeit der Animation
+        
+        // --- EINSTELLUNGEN ---
+        let speed = 0.0008; // Langsame Geschwindigkeit
+        let pauseDuration = 200; // Pause am Ende
+        // ---------------------
+
         let pause = 0;
         let points = [];
         
-        // Farben anpassen (Dark Academia Style)
-        const lineColor = '#D4AF37'; // Gold
-        const gradientStart = 'rgba(212, 175, 55, 0.2)'; // Gold transparent
-        const gradientEnd = 'rgba(212, 175, 55, 0)'; // Komplett transparent
+        // --- FARBEN (Beige / Leichtes Braun) ---
+        // Hex Code: #C4A484 (Light Brown / Beige)
+        const lineColor = '#C4A484'; 
+        
+        // Der Schatten unter der Linie (RGB Werte von C4A484 sind 196, 164, 132)
+        const gradientStart = 'rgba(196, 164, 132, 0.2)'; // 20% Sichtbarkeit
+        const gradientEnd = 'rgba(196, 164, 132, 0)';     // 0% Sichtbarkeit (Transparent)
 
         function resize() {
             width = window.innerWidth;
@@ -62,20 +72,17 @@
             generatePath();
         }
 
-        // Generiert eine leicht zufällige, aber immer ansteigende Kurve
         function generatePath() {
             points = [];
-            const segments = 100;
-            let currentY = height * 0.8; // Startpunkt (unten links)
+            const segments = 400; // Hohe Auflösung für weiche Linie
             
             for (let i = 0; i <= segments; i++) {
                 const x = (width / segments) * i;
                 
-                // Exponentielles Wachstum simulieren
-                // Je weiter rechts (i), desto stärker der Anstieg
+                // Exponentieller Anstieg
                 const rise = (Math.pow(i / segments, 2)) * (height * 0.6);
                 
-                // Ein bisschen "Noise" (Zufall), damit es natürlich wirkt
+                // Noise
                 const noise = (Math.random() - 0.5) * 10;
                 
                 let y = (height * 0.8) - rise + noise;
@@ -84,28 +91,26 @@
         }
 
         function draw() {
+            // clearRect sorgt dafür, dass der Hintergrund transparent bleibt
             ctx.clearRect(0, 0, width, height);
 
             if (pause > 0) {
                 pause--;
-                // Zeichne die volle Kurve während der Pause
                 drawCurve(points.length);
                 requestAnimationFrame(draw);
                 return;
             }
 
-            // Berechne wie viele Punkte wir basierend auf "progress" zeichnen
             const currentPointIndex = Math.floor(points.length * progress);
             
             drawCurve(currentPointIndex);
 
             progress += speed;
 
-            // Wenn Animation fertig, kurz warten und neu starten
             if (progress >= 1) {
-                pause = 100; // 100 Frames warten (ca. 1.5 Sekunden)
+                pause = pauseDuration; 
                 progress = 0;
-                generatePath(); // Neue Kurve generieren für Variation
+                generatePath(); 
             }
 
             requestAnimationFrame(draw);
@@ -117,21 +122,20 @@
             ctx.beginPath();
             ctx.moveTo(points[0].x, points[0].y);
 
-            // Linie zeichnen
             for (let i = 1; i < maxIndex; i++) {
-                // Bezier Kurve für Weichheit (optional simple lineTo)
-                // Wir nutzen hier simple lineTo für den "Chart"-Look
                 ctx.lineTo(points[i].x, points[i].y);
             }
 
             ctx.strokeStyle = lineColor;
-            ctx.lineWidth = 2;
+            ctx.lineWidth = 2.5; // Linie etwas dicker gemacht für bessere Sichtbarkeit
             ctx.lineCap = 'round';
-            ctx.shadowBlur = 10;
+            
+            // Glow etwas reduziert für cleaneren Look
+            ctx.shadowBlur = 10; 
             ctx.shadowColor = lineColor;
             ctx.stroke();
 
-            // Gradient unter der Linie (Area Chart Style)
+            // Gradient füllen
             ctx.lineTo(points[maxIndex - 1].x, height);
             ctx.lineTo(0, height);
             ctx.closePath();
@@ -142,11 +146,13 @@
             ctx.fillStyle = gradient;
             ctx.fill();
             
-            // Kleiner Punkt am Ende der Linie (Der "Jetzt"-Punkt)
+            // Punkt an der Spitze
             const lastPoint = points[maxIndex - 1];
             ctx.beginPath();
-            ctx.arc(lastPoint.x, lastPoint.y, 4, 0, Math.PI * 2);
-            ctx.fillStyle = '#fff';
+            ctx.arc(lastPoint.x, lastPoint.y, 3, 0, Math.PI * 2);
+            ctx.fillStyle = '#fff'; // Der Punkt bleibt weiß als Kontrast
+            ctx.shadowBlur = 5;
+            ctx.shadowColor = '#fff';
             ctx.fill();
         }
 
