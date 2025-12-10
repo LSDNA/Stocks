@@ -3,94 +3,157 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notion Market Charts</title>
+    <title>Personal Growth Animation</title>
     <style>
         body {
             margin: 0;
             padding: 0;
-            background-color: #191919; /* Notion Dark Background */
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
-        .container {
+            background-color: #191919; /* Notion Dark Mode Hintergrund */
             display: flex;
-            justify-content: space-between;
-            gap: 10px; /* Space between charts */
-            padding: 10px;
+            justify-content: center;
+            align-items: center;
             height: 100vh;
-            box-sizing: border-box;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
-        .chart-box {
-            flex: 1; /* Makes all 3 charts equal width */
-            min-width: 0;
-            height: 100%;
+
+        canvas {
+            display: block;
+        }
+
+        .label {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #E0D6C2; /* Ein sanftes Beige/Weiß */
+            font-size: 14px;
+            letter-spacing: 1px;
+            opacity: 0.8;
+            text-transform: uppercase;
+            font-weight: 600;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
+    <div class="label">Personal Growth</div>
+    <canvas id="growthCanvas"></canvas>
 
-    <!-- CHART 1: S&P 500 (Global Standard) -->
-    <div class="chart-box">
-        <div class="tradingview-widget-container">
-            <div class="tradingview-widget-container__widget"></div>
-            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
-            {
-            "symbol": "FOREXCOM:SPXUSD",
-            "width": "100%",
-            "height": "100%",
-            "locale": "en",
-            "dateRange": "12M",
-            "colorTheme": "dark",
-            "isTransparent": true,
-            "autosize": true,
-            "largeChartUrl": ""
+    <script>
+        const canvas = document.getElementById('growthCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        let progress = 0;
+        let speed = 0.008; // Geschwindigkeit der Animation
+        let pause = 0;
+        let points = [];
+        
+        // Farben anpassen (Dark Academia Style)
+        const lineColor = '#D4AF37'; // Gold
+        const gradientStart = 'rgba(212, 175, 55, 0.2)'; // Gold transparent
+        const gradientEnd = 'rgba(212, 175, 55, 0)'; // Komplett transparent
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            generatePath();
+        }
+
+        // Generiert eine leicht zufällige, aber immer ansteigende Kurve
+        function generatePath() {
+            points = [];
+            const segments = 100;
+            let currentY = height * 0.8; // Startpunkt (unten links)
+            
+            for (let i = 0; i <= segments; i++) {
+                const x = (width / segments) * i;
+                
+                // Exponentielles Wachstum simulieren
+                // Je weiter rechts (i), desto stärker der Anstieg
+                const rise = (Math.pow(i / segments, 2)) * (height * 0.6);
+                
+                // Ein bisschen "Noise" (Zufall), damit es natürlich wirkt
+                const noise = (Math.random() - 0.5) * 10;
+                
+                let y = (height * 0.8) - rise + noise;
+                points.push({x, y});
             }
-            </script>
-        </div>
-    </div>
+        }
 
-    <!-- CHART 2: DAX (Example for Europe - Change this!) -->
-    <div class="chart-box">
-        <div class="tradingview-widget-container">
-            <div class="tradingview-widget-container__widget"></div>
-            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
-            {
-            "symbol": "XETR:DAX", 
-            "width": "100%",
-            "height": "100%",
-            "locale": "en",
-            "dateRange": "12M",
-            "colorTheme": "dark",
-            "isTransparent": true,
-            "autosize": true,
-            "largeChartUrl": ""
+        function draw() {
+            ctx.clearRect(0, 0, width, height);
+
+            if (pause > 0) {
+                pause--;
+                // Zeichne die volle Kurve während der Pause
+                drawCurve(points.length);
+                requestAnimationFrame(draw);
+                return;
             }
-            </script>
-        </div>
-    </div>
 
-    <!-- CHART 3: Bitcoin or Gold (Alternative Asset) -->
-    <div class="chart-box">
-        <div class="tradingview-widget-container">
-            <div class="tradingview-widget-container__widget"></div>
-            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
-            {
-            "symbol": "BITSTAMP:BTCUSD",
-            "width": "100%",
-            "height": "100%",
-            "locale": "en",
-            "dateRange": "12M",
-            "colorTheme": "dark",
-            "isTransparent": true,
-            "autosize": true,
-            "largeChartUrl": ""
+            // Berechne wie viele Punkte wir basierend auf "progress" zeichnen
+            const currentPointIndex = Math.floor(points.length * progress);
+            
+            drawCurve(currentPointIndex);
+
+            progress += speed;
+
+            // Wenn Animation fertig, kurz warten und neu starten
+            if (progress >= 1) {
+                pause = 100; // 100 Frames warten (ca. 1.5 Sekunden)
+                progress = 0;
+                generatePath(); // Neue Kurve generieren für Variation
             }
-            </script>
-        </div>
-    </div>
 
-</div>
+            requestAnimationFrame(draw);
+        }
 
+        function drawCurve(maxIndex) {
+            if (maxIndex < 1) return;
+
+            ctx.beginPath();
+            ctx.moveTo(points[0].x, points[0].y);
+
+            // Linie zeichnen
+            for (let i = 1; i < maxIndex; i++) {
+                // Bezier Kurve für Weichheit (optional simple lineTo)
+                // Wir nutzen hier simple lineTo für den "Chart"-Look
+                ctx.lineTo(points[i].x, points[i].y);
+            }
+
+            ctx.strokeStyle = lineColor;
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = lineColor;
+            ctx.stroke();
+
+            // Gradient unter der Linie (Area Chart Style)
+            ctx.lineTo(points[maxIndex - 1].x, height);
+            ctx.lineTo(0, height);
+            ctx.closePath();
+            
+            const gradient = ctx.createLinearGradient(0, 0, 0, height);
+            gradient.addColorStop(0, gradientStart);
+            gradient.addColorStop(1, gradientEnd);
+            ctx.fillStyle = gradient;
+            ctx.fill();
+            
+            // Kleiner Punkt am Ende der Linie (Der "Jetzt"-Punkt)
+            const lastPoint = points[maxIndex - 1];
+            ctx.beginPath();
+            ctx.arc(lastPoint.x, lastPoint.y, 4, 0, Math.PI * 2);
+            ctx.fillStyle = '#fff';
+            ctx.fill();
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+        requestAnimationFrame(draw);
+
+    </script>
 </body>
 </html>
