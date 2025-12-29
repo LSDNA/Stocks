@@ -3,19 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Slow Growth Transparent - Notion Serif</title>
+    <title>Slow Growth - Notion Theme Match</title>
     <style>
         body {
             margin: 0;
             padding: 0;
-            /* Hintergrund ist transparent für Notion */
             background-color: transparent; 
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             overflow: hidden;
-            /* Notion Serif Font Stack */
+            /* Notion Serif Font */
             font-family: Lyon-Text, Georgia, ui-serif, serif;
         }
 
@@ -27,15 +26,13 @@
             position: absolute;
             top: 25px;
             left: 25px;
-            /* Textfarbe passend zur Linie */
-            color: #F3EDEEE; 
-            /* Notion-Serif-Look Optimierungen */
+            /* Die braune Textfarbe aus deiner Tabelle */
+            color: #976D57; 
             font-family: Lyon-Text, Georgia, ui-serif, serif;
-            font-size: 18px; 
-            letter-spacing: -0.2px;
-            opacity: 0.85;
+            font-size: 19px; 
+            letter-spacing: -0.3px;
+            opacity: 1;
             font-weight: 500;
-            /* 'text-transform: uppercase' wurde entfernt für den klassischen Notion-Look */
         }
     </style>
 </head>
@@ -52,17 +49,15 @@
         let progress = 0;
         
         // --- EINSTELLUNGEN ---
-        let speed = 0.0006; // Langsame Geschwindigkeit
-        let pauseDuration = 200; // Pause am Ende
-        // ---------------------
+        let speed = 0.0006; 
+        let pauseDuration = 200; 
 
         let pause = 0;
         let points = [];
         
-        // --- FARBEN ---
-        const lineColor = '#F3EEEE'; 
-        const gradientStart = 'rgba(245, 237, 237, 0.15)'; 
-        const gradientEnd = 'rgba(245, 237, 237, 0)';     
+        // --- FARBEN MATCH (Aus deiner Tabelle) ---
+        const brownText = '#976D57';       // Für Linie und Schrift
+        const calloutBg = '#F3EEEE';       // Für die Füllung unter dem Graphen
 
         function resize() {
             width = window.innerWidth;
@@ -75,13 +70,10 @@
         function generatePath() {
             points = [];
             const segments = 400; 
-            
             for (let i = 0; i <= segments; i++) {
                 const x = (width / segments) * i;
-                // Exponentieller Anstieg
                 const rise = (Math.pow(i / segments, 2)) * (height * 0.6);
-                // Leichtes Rauschen für organischen Look
-                const noise = (Math.random() - 0.5) * 10;
+                const noise = (Math.random() - 0.5) * 8;
                 let y = (height * 0.8) - rise + noise;
                 points.push({x, y});
             }
@@ -114,39 +106,35 @@
         function drawCurve(maxIndex) {
             if (maxIndex < 1) return;
 
+            // 1. Die Füllung (Der Bereich unter der Kurve)
+            // Hier nutzen wir exakt dein Callout-Beige
             ctx.beginPath();
             ctx.moveTo(points[0].x, points[0].y);
-
             for (let i = 1; i < maxIndex; i++) {
                 ctx.lineTo(points[i].x, points[i].y);
             }
-
-            ctx.strokeStyle = lineColor;
-            ctx.lineWidth = 2.5; 
-            ctx.lineCap = 'round';
-            
-            ctx.shadowBlur = 10; 
-            ctx.shadowColor = lineColor;
-            ctx.stroke();
-
-            // Gradient füllen
             ctx.lineTo(points[maxIndex - 1].x, height);
             ctx.lineTo(0, height);
             ctx.closePath();
-            
-            const gradient = ctx.createLinearGradient(0, 0, 0, height);
-            gradient.addColorStop(0, gradientStart);
-            gradient.addColorStop(1, gradientEnd);
-            ctx.fillStyle = gradient;
+            ctx.fillStyle = calloutBg;
             ctx.fill();
+
+            // 2. Die Linie oben drauf
+            ctx.beginPath();
+            ctx.moveTo(points[0].x, points[0].y);
+            for (let i = 1; i < maxIndex; i++) {
+                ctx.lineTo(points[i].x, points[i].y);
+            }
+            ctx.strokeStyle = brownText;
+            ctx.lineWidth = 2; 
+            ctx.lineCap = 'round';
+            ctx.stroke();
             
-            // Punkt an der Spitze
+            // 3. Der Punkt an der Spitze
             const lastPoint = points[maxIndex - 1];
             ctx.beginPath();
             ctx.arc(lastPoint.x, lastPoint.y, 3, 0, Math.PI * 2);
-            ctx.fillStyle = '#fff';
-            ctx.shadowBlur = 5;
-            ctx.shadowColor = '#fff';
+            ctx.fillStyle = brownText;
             ctx.fill();
         }
 
