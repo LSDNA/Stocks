@@ -1,21 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Slow Growth Transparent</title>
+    <title>Slow Growth Transparent - Notion Serif</title>
     <style>
         body {
             margin: 0;
             padding: 0;
-            /* Hintergrund ist jetzt transparent */
+            /* Hintergrund ist transparent für Notion */
             background-color: transparent; 
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             overflow: hidden;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            /* Notion Serif Font Stack */
+            font-family: Lyon-Text, Georgia, ui-serif, serif;
         }
 
         canvas {
@@ -24,15 +25,17 @@
 
         .label {
             position: absolute;
-            top: 20px;
-            left: 20px;
-            /* Die Textfarbe passt sich jetzt der Linie an */
-            color:#F5EDED; 
-            font-size: 14px;
-            letter-spacing: 1px;
-            opacity: 0.9;
-            text-transform: uppercase;
-            font-weight: 600;
+            top: 25px;
+            left: 25px;
+            /* Textfarbe passend zur Linie */
+            color: #F5EDED; 
+            /* Notion-Serif-Look Optimierungen */
+            font-family: Lyon-Text, Georgia, ui-serif, serif;
+            font-size: 18px; 
+            letter-spacing: -0.2px;
+            opacity: 0.85;
+            font-weight: 500;
+            /* 'text-transform: uppercase' wurde entfernt für den klassischen Notion-Look */
         }
     </style>
 </head>
@@ -56,13 +59,10 @@
         let pause = 0;
         let points = [];
         
-        // --- FARBEN (Beige / Leichtes Braun) ---
-        // Hex Code: #C4A484 (Light Brown / Beige)
+        // --- FARBEN ---
         const lineColor = '#F5EDED'; 
-        
-        // Der Schatten unter der Linie (RGB Werte von C4A484 sind 196, 164, 132)
-        const gradientStart = 'rgba(196, 164, 132, 0.2)'; // 20% Sichtbarkeit
-        const gradientEnd = 'rgba(196, 164, 132, 0)';     // 0% Sichtbarkeit (Transparent)
+        const gradientStart = 'rgba(245, 237, 237, 0.15)'; 
+        const gradientEnd = 'rgba(245, 237, 237, 0)';     
 
         function resize() {
             width = window.innerWidth;
@@ -74,24 +74,20 @@
 
         function generatePath() {
             points = [];
-            const segments = 400; // Hohe Auflösung für weiche Linie
+            const segments = 400; 
             
             for (let i = 0; i <= segments; i++) {
                 const x = (width / segments) * i;
-                
                 // Exponentieller Anstieg
                 const rise = (Math.pow(i / segments, 2)) * (height * 0.6);
-                
-                // Noise
+                // Leichtes Rauschen für organischen Look
                 const noise = (Math.random() - 0.5) * 10;
-                
                 let y = (height * 0.8) - rise + noise;
                 points.push({x, y});
             }
         }
 
         function draw() {
-            // clearRect sorgt dafür, dass der Hintergrund transparent bleibt
             ctx.clearRect(0, 0, width, height);
 
             if (pause > 0) {
@@ -102,7 +98,6 @@
             }
 
             const currentPointIndex = Math.floor(points.length * progress);
-            
             drawCurve(currentPointIndex);
 
             progress += speed;
@@ -127,10 +122,9 @@
             }
 
             ctx.strokeStyle = lineColor;
-            ctx.lineWidth = 2.5; // Linie etwas dicker gemacht für bessere Sichtbarkeit
+            ctx.lineWidth = 2.5; 
             ctx.lineCap = 'round';
             
-            // Glow etwas reduziert für cleaneren Look
             ctx.shadowBlur = 10; 
             ctx.shadowColor = lineColor;
             ctx.stroke();
@@ -150,7 +144,7 @@
             const lastPoint = points[maxIndex - 1];
             ctx.beginPath();
             ctx.arc(lastPoint.x, lastPoint.y, 3, 0, Math.PI * 2);
-            ctx.fillStyle = '#fff'; // Der Punkt bleibt weiß als Kontrast
+            ctx.fillStyle = '#fff';
             ctx.shadowBlur = 5;
             ctx.shadowColor = '#fff';
             ctx.fill();
